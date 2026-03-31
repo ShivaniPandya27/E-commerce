@@ -62,7 +62,12 @@ const useCart = () => useContext(CartContext);
 
 // ----- Product List Component -----
 function ProductList() {
-  const { addToCart } = useCart();
+  const { cart, addToCart, decrementQty } = useCart();
+
+  const getItemQty = (id) => {
+    const item = cart.find((item) => item.id === id);
+    return item ? item.qty : 0;
+  };
 
   return (
     <div style={styles.card}>
@@ -70,19 +75,47 @@ function ProductList() {
 
       <Link to="/cart">Go to Cart</Link>
 
-      {productsData.map((product) => (
-        <div key={product.id} style={styles.row}>
-          <span>
-            {product.name} - ${product.price}
-          </span>
-          <button
-            style={styles.addBtn}
-            onClick={() => addToCart(product)}
-          >
-            Add
-          </button>
-        </div>
-      ))}
+
+      {productsData.map((product) => {
+        const qty = getItemQty(product.id);
+
+        return (
+          <div key={product.id} style={styles.row}>
+            <span>
+              {product.name} - ${product.price}
+            </span>
+
+            {qty === 0 ? (
+              // 👉 Show ADD button if not in cart
+              <button
+                style={styles.addBtn}
+                onClick={() => addToCart(product)}
+              >
+                Add
+              </button>
+            ) : (
+              // 👉 Show + / − if already in cart
+              <div style={styles.controls}>
+                <button
+                  style={styles.qtyBtn}
+                  onClick={() => decrementQty(product.id)}
+                >
+                  −
+                </button>
+
+                <span style={{ margin: "0 10px" }}>{qty}</span>
+
+                <button
+                  style={styles.qtyBtn}
+                  onClick={() => addToCart(product)}
+                >
+                  +
+                </button>
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
